@@ -64,3 +64,45 @@ IN MX 10 mx2
 如果DNS查询无法找出对某个地址的MX记录（通常因为对方没有信件交换主机），那么sendmail将是试图直接与对方的主机（来自邮件地址）对话并且发
 送邮件。例如,test@www.linuxaid.com.cn在DNS中没有对应的MX记录，因此sendmail在确定MX交换器失败后，将从
 DNS取得邮件地址服务器部分内容对应的IP地址，并直接和其通信来发送邮件。
+
+
+####################################################################
+
+DNS server內的每一個網域名稱都有自己的檔案，這個檔案一般會稱為區域檔案 (zone file)，例如之前所提到的”named.ca”或”named.local” 檔案…等等。區域檔案是由多個記錄組成的，每一個記錄稱為資源記錄(Resource Record，簡稱RR)。當在設定DNS名稱解析、反向解析及其他的管理目的時，您需要使用不同類型的RR，底下將介紹常用的RR類型及表示法。
+DNS資源紀錄(Resource <wbr>Record)介紹:
+
+1.SOA
+Start Of Authority，這種 record 放在 zone file 一開始的地方，每一個記錄檔只能有一個 SOA，而且一定是檔案中第一個“記錄”，它描述這個 zone 負責的 name server，version number…等資料，以及當 slave server 要備份這個 zone 時的一些參數。 緊接在 SOA 後面指定了這個區域的授權主機和管理者的信箱，這裡分別是 "school.edu.tw" 和" root.school.edu.tw"，也就是school.edu.tw主機和 root 的信箱。這裡要注意的是我們以"root.school.edu.tw"代表"root@school.edu.tw"
+e.g.
+@ IN SOA school.edu.tw. root.school.edu.tw. ( 1999051401 ; Serial 3600 ; Refresh 300 ; Retry 3600000 ; Expire 3600 ) ; Minimum
+在兩個括號中間的選項表示SOA的設定內容，底下會有更詳細的說明。
+
+2.NS
+name server，用來指定操作的DNS伺服器主機名稱，需注意的是不可以IP位址表示。
+e.g.
+IN NS dns.twnic.net.tw.
+
+3.A
+address，將DNS網域名稱對應到IPv4的32位元位址。
+e.g.
+server IN A 140.123.102.10
+
+4.AAAA
+可將DNS網域名稱對應到IPv6的128位元位址。
+e.g.
+twnic.net.tw. 86400 IN AAAA 3ffe: :bbb:93:5
+
+5.PTR
+pointer，定義某個 IP 對應的 domain name，即將 IP 位址轉換成主機的FQDN。
+e.g.
+20 IN PTR mail.twnic.net.tw.
+
+6.CNAME
+canonical name，可為同一部主機設定許多別名，例如 mix.twnic.net.tw的別名可為 www.twnic.net.tw和 ftp.twnic.net.tw，因此所設定的別名都會連至同一部伺服器。
+e.g.
+www IN CNAME mix
+
+MX
+mail exchanger，設定區域中擔任郵件伺服器的主機，所有要送往那部機器的 mail 都要經過 mail exchanger 轉送。而數字則是該主機郵件傳遞時的優先次序，此值越低表示有越高的郵件處理優先權。
+e.g.
+server IN MX 10 mail.twnic.net.tw.
